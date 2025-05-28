@@ -29,12 +29,16 @@ class Controller {
       const novoRegistroCriado = await this.entidadeService.criaRegistro(
         dadosParaCriacao
       );
-      return res.status(200).json(novoRegistroCriado);
+      return res.status(201).json(novoRegistroCriado);
     } catch (erro) {
-      return res.status(500).json({ erro: erro.mensagem });
+      if (erro.name === 'SequelizeValidationError') {
+        return res.status(400).json({
+          erros: erro.errors.map((e) => e.message),
+        });
+      }
+      return res.status(500).json({ erro: erro.message });
     }
   }
-
   async atualiza(req, res) {
     const { id } = req.params;
     const dadosAtualizados = req.body;
